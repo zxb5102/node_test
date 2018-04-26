@@ -2,18 +2,19 @@ const Koa = require('koa');
 var Router = require('koa-router');
 const app = new Koa();
 var router = new Router();
-
-router.get('/', (ctx, next) => {
-    ctx.body = 'root dir';
-    ctx.set({
-        'Etag': '1234',
-        'Last-Modified': 'xx'
-    });
-}).get('/xm/:id', (ctx, next) => {
-    ctx.body = '/xm/:id';
+var server = require('koa-static')('.', {
+    gzip: true,
+    index: 'index.html'
 });
 
-app
+router.get('/example/:id', (ctx, next) => {
+    ctx.body =  `
+        you input ${ctx.params.id}
+        query params ${JSON.stringify(ctx.query)}
+    `;
+});
+
+app.use(server)
     .use(async (ctx, next) => {
         await next();
     })
@@ -22,4 +23,4 @@ app
     })
     .use(router.routes())
     .use(router.allowedMethods());
-app.listen(3000);
+app.listen(3001);
